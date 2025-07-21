@@ -16,7 +16,7 @@ class Sidebar:
         st.header(SIDEBAR_HEADER)
 
     def _render_new_session_button(self):
-        if st.button(NEW_SESSION_BUTTON, use_container_width=True):
+        if st.button(NEW_SESSION_BUTTON, use_container_width=True, type="primary"):
             st.session_state.messages = []
             st.rerun()
 
