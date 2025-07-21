@@ -1,5 +1,5 @@
 # Dependency for UI 
-streamlit-chat
+streamlit
 watchdog
 
 python-dotenv>=1.1.1
