@@ -1,5 +1,12 @@
 # Therapy Session Simulator
 
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Frontend-red.svg)](https://streamlit.io)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green.svg)](https://fastapi.tiangolo.com)
+[![LangChain](https://img.shields.io/badge/LangChain-Orchestration-yellow.svg)](https://langchain.com)
+[![OpenAI](https://img.shields.io/badge/OpenAI-LLM-pink.svg)](https://platform.openai.com/docs/models)
+[![Pinecone](https://img.shields.io/badge/Pinecone-VectorDB-khakhi.svg)](https://docs.pinecone.io/guides/get-started/overview)
+
 Therapy Session Simulator is an interactive tool designed to replicate realistic conversations based on the principles of **Cognitive Behavioral Therapy (CBT)**. It aims to support mental health professionals, students, and individuals by simulating structured, evidence-based therapeutic sessions.
 
 The simulator enables users to explore CBT techniques such as:
@@ -13,14 +20,14 @@ By grounding simulated interactions in established CBT practices and literature,
 
 ## 🛠️ Tech Stack
 
-| Component          | Technology                    | Purpose                                  |
-| ------------------ | ----------------------------- | ---------------------------------------- |
-| **Frontend**       | Streamlit                     | User interface and chat experience       |
-| **Backend**        | FastAPI                       | API services and business logic          |
-| **Orchestration**  | LangChain                     | Agent coordination and memory management |
-| **Vector DB**      | Pinecone                      | Knowledge storage and retrieval          |
-| **Observability**  | LangSmith                     | Debugging and prompt management          |
-| **Language Model** | OpenAI GPT / Anthropic Claude | Conversational AI                        |
+| Component          | Technology | Purpose                                  |
+| ------------------ | ---------- | ---------------------------------------- |
+| **Frontend**       | Streamlit  | User interface and chat experience       |
+| **Backend**        | FastAPI    | API services and business logic          |
+| **Orchestration**  | LangChain  | Agent coordination and memory management |
+| **Vector DB**      | Pinecone   | Knowledge storage and retrieval          |
+| **Observability**  | LangSmith  | Debugging and prompt management          |
+| **Language Model** | OpenAI GPT | LLM                                      |
 
 ## 🚀 Getting Started
 
