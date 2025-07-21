@@ -85,32 +85,23 @@ The system features:
 
 2. **Set up virtual environment**
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+   Firstly install [Conda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html)
 
-3. **Install dependencies**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment variables**
+3. **Configure environment variables**
 
    ```bash
    cp .env.example .env
    # Edit .env with your API keys
    ```
 
-5. **Run the application**
+4. **Install dependencies and run the application using the following scripts**
 
    ```bash
    # Start FastAPI backend
    cd server && uvicorn main:app --reload
 
    # Start Streamlit frontend (in new terminal)
-   cd frontend && streamlit run main.py
+   ./start-frontend.sh
    ```
 
 ## 🎮 Usage
