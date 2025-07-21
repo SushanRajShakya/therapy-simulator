@@ -3,7 +3,7 @@ TITLE = "Therapy Session Simulator"
 PAGE_ICON = "🧠"
 
 # Sidebar Text
-SIDEBAR_HEADER = "💬 Chat Controls"
+SIDEBAR_HEADER = "💬 Session Controls"
 NEW_SESSION_BUTTON = "🆕 Start a new session"
 SESSION_INFO_HEADER = "📊 Session Info"
 MESSAGES_METRIC = "Message count"
