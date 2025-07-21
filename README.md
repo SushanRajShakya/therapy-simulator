@@ -87,21 +87,35 @@ The system features:
 
    Firstly install [Conda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html)
 
-3. **Configure environment variables**
+   ```bash
+   # Create necessary virtual env named 'therapy-simulator'
+   conda create -n therapy-simulator python=3.11.5
+
+   # Activate virtual env
+   conda activate therapy-simulator
+   ```
+
+3. **Install dependencies**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables**
 
    ```bash
    cp .env.example .env
    # Edit .env with your API keys
    ```
 
-4. **Install dependencies and run the application using the following scripts**
+5. **Run the application**
 
    ```bash
    # Start FastAPI backend
    cd server && uvicorn main:app --reload
 
    # Start Streamlit frontend (in new terminal)
-   ./start-frontend.sh
+   streamlit run ./frontend/main.py
    ```
 
 ## 🎮 Usage
