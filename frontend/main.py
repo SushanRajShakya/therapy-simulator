@@ -3,7 +3,6 @@ from constants import *
 from config import *
 from components.sidebar import Sidebar
 from components.chat_interface import ChatInterface
-from styles.theme import *
 
 # Page config
 st.set_page_config(
@@ -14,9 +13,6 @@ st.set_page_config(
 
 
 def main():
-    # Apply theme
-    apply_theme()
-
     # Initialize components
     sidebar = Sidebar()
     chat_interface = ChatInterface()
