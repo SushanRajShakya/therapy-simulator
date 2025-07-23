@@ -39,17 +39,21 @@ class ChatInterface:
             user_input = st.session_state.pending_user_input
             delattr(st.session_state, "pending_user_input")
 
-            # Show typing indicator or processing message
+            # Show typing indicator while getting response
             with st.chat_message("assistant"):
                 with st.spinner("Thinking..."):
-                    self._add_bot_response(user_input)
+                    # Get the response from API first
+                    bot_response = self._get_bot_response(user_input)
+
+                # Now stream the response with typing effect
+                self._stream_response(bot_response)
 
     def _add_user_message(self, content):
         st.session_state.messages.append({"role": "user", "content": content})
         # Set flag to process bot response on next rerun
         st.session_state.pending_user_input = content
 
-    def _add_bot_response(self, user_input):
+    def _get_bot_response(self, user_input):
         try:
             # Call FastAPI backend
             response = requests.post(
@@ -62,12 +66,28 @@ class ChatInterface:
             )
 
             if response.status_code == 200:
-                bot_response = response.json()["response"]
+                return response.json()["response"]
             else:
-                bot_response = "Sorry, I'm having trouble connecting right now."
+                return "Sorry, I'm having trouble connecting right now."
 
         except requests.exceptions.RequestException:
-            bot_response = "Connection error. Please check if the server is running."
+            return "Connection error. Please check if the server is running."
 
+    def _stream_response(self, bot_response):
+        import time
+
+        # Create a placeholder for the streaming response
+        message_placeholder = st.empty()
+        full_response = ""
+
+        # Stream the response character by character
+        for char in bot_response:
+            full_response += char
+            message_placeholder.markdown(full_response + "▌")  # Add cursor effect
+            time.sleep(0.02)  # Adjust speed of typing (0.02 seconds per character)
+
+        # Remove cursor and show final message
+        message_placeholder.markdown(full_response)
+
+        # Add the complete response to session state
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
-        st.rerun()
