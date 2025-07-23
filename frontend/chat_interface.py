@@ -76,20 +76,14 @@ class ChatInterface:
     def _stream_response(self, bot_response):
         import time
 
-        # Create a placeholder for the streaming response
-        message_placeholder = st.empty()
-        full_response = ""
+        # Use Streamlit's built-in streaming function with proper timing
+        def response_generator():
+            for char in bot_response:
+                yield char
+                time.sleep(0.005)  # Small delay to create streaming effect
 
-        # Stream the response character by character
-        for char in bot_response:
-            full_response += char
-            message_placeholder.markdown(full_response + "▌")  # Add cursor effect
-            time.sleep(
-                0.005
-            )  # Adjust speed of typing (0.005 seconds per character - faster typing)
-
-        # Remove cursor and show final message
-        message_placeholder.markdown(full_response)
+        # Stream the response using st.write_stream
+        st.write_stream(response_generator())
 
         # Add the complete response to session state
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
