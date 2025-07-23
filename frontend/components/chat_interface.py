@@ -1,9 +1,12 @@
+import requests
 import streamlit as st
+
 from constants import *
 
 
 class ChatInterface:
     def __init__(self):
+        self.api_url = "http://localhost:8000"
         self._initialize_session()
 
     def _initialize_session(self):
@@ -36,4 +39,26 @@ class ChatInterface:
 
     def _add_bot_response(self, user_input):
         bot_response = DEFAULT_BOT_RESPONSE.format(user_input)
+        st.session_state.messages.append({"role": "assistant", "content": bot_response})
+        try:
+            # Call FastAPI backend
+            response = requests.post(
+                f"{self.api_url}/chat",
+                json={
+                    "message": user_input,
+                    "session_id": st.session_state.get("session_id", "default"),
+                },
+                timeout=30,
+            )
+
+            print(response)
+
+            if response.status_code == 200:
+                bot_response = response.json()["response"]
+            else:
+                bot_response = "Sorry, I'm having trouble connecting right now."
+
+        except requests.exceptions.RequestException:
+            bot_response = "Connection error. Please check if the server is running."
+
         st.session_state.messages.append({"role": "assistant", "content": bot_response})

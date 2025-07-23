@@ -1,15 +1,49 @@
-from typing import Union
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
+from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
 
-from fastapi import FastAPI
+from models.chat import *
+from constants import *
 
-app = FastAPI()
+# Load environment variables
+load_dotenv()
+
+app = FastAPI(title=SERVER_NAME)
+
+# Configure OpenAI
+open_ai_api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=open_ai_api_key)
 
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.post("/chat", response_model=ChatResponse)
+async def chat_with_llm(request: ChatRequest):
+    try:
+        # Call OpenAI API
+        response = client.chat.completions.create(
+            model="gpt-4.1-nano",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful therapy assistant trained in CBT techniques.",
+                },
+                {"role": "user", "content": request.message},
+            ],
+            temperature=1,
+        )
+
+        llm_response = response.choices[0].message.content
+
+        data = ChatResponse(response=llm_response, session_id=request.session_id)
+
+        print(data)
+
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"LLM API error: {str(e)}")
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "service": SERVER_NAME}
