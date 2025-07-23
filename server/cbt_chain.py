@@ -1,8 +1,9 @@
 import os
 from dotenv import load_dotenv
-from langchain.chains import LLMChain, SequentialChain
-from langchain.prompts import PromptTemplate
+from langchain.prompts import ChatPromptTemplate
 from langchain_openai import OpenAI as LangChainOpenAI
+from langchain_core.runnables import RunnableLambda
+from langchain_core.output_parsers import StrOutputParser
 
 from config import MODEL_CONFIG
 
@@ -23,9 +24,8 @@ langchain_llm = LangChainOpenAI(
 # Create CBT Sequential Chain
 def create_cbt_sequential_chain():
     # Step 1: Initial Assessment and Validation
-    assessment_prompt = PromptTemplate(
-        input_variables=["user_message"],
-        template="""
+    assessment_prompt = ChatPromptTemplate.from_template(
+        """
         You are a professional CBT therapist. Your task is to provide initial assessment and validation.
         
         STEP 1: INITIAL ASSESSMENT AND VALIDATION
@@ -43,9 +43,8 @@ def create_cbt_sequential_chain():
     )
 
     # Step 2: CBT Technique Application
-    technique_prompt = PromptTemplate(
-        input_variables=["user_message", "assessment"],
-        template="""
+    technique_prompt = ChatPromptTemplate.from_template(
+        """
         You are a professional CBT therapist applying evidence-based techniques.
         
         Based on the initial assessment: {assessment}
@@ -75,9 +74,8 @@ def create_cbt_sequential_chain():
     )
 
     # Step 3: Action Planning and Follow-up
-    action_prompt = PromptTemplate(
-        input_variables=["user_message", "assessment", "technique_application"],
-        template="""
+    action_prompt = ChatPromptTemplate.from_template(
+        """
         You are a professional CBT therapist creating a therapeutic response.
         
         User message: {user_message}
@@ -103,25 +101,38 @@ def create_cbt_sequential_chain():
         """,
     )
 
-    # Create individual chains
-    assessment_chain = LLMChain(
-        llm=langchain_llm, prompt=assessment_prompt, output_key="assessment"
+    # Create the chain using proper LCEL pattern with Lambda functions for data flow
+
+    # Step 1: Assessment Runnable
+    assessment_runnable = assessment_prompt | langchain_llm | StrOutputParser()
+
+    # Step 2: Technique Runnable
+    technique_runnable = technique_prompt | langchain_llm | StrOutputParser()
+
+    # Step 3: Action Runnable
+    action_runnable = action_prompt | langchain_llm | StrOutputParser()
+
+    # Lambda functions to manage data flow between runnables
+    def add_assessment(inputs):
+        """Add assessment result to the inputs dict"""
+        assessment_result = assessment_runnable.invoke(inputs)
+        return {**inputs, "assessment": assessment_result}
+
+    def add_technique(inputs):
+        """Add technique application result to the inputs dict"""
+        technique_result = technique_runnable.invoke(inputs)
+        return {**inputs, "technique_application": technique_result}
+
+    def get_final_response(inputs):
+        """Get the final response and return just the response text"""
+        final_result = action_runnable.invoke(inputs)
+        return {"final_response": final_result}
+
+    # Create the complete chain using LCEL pattern with Lambda functions
+    chain = (
+        RunnableLambda(add_assessment)
+        | RunnableLambda(add_technique)
+        | RunnableLambda(get_final_response)
     )
 
-    technique_chain = LLMChain(
-        llm=langchain_llm, prompt=technique_prompt, output_key="technique_application"
-    )
-
-    action_chain = LLMChain(
-        llm=langchain_llm, prompt=action_prompt, output_key="final_response"
-    )
-
-    # Create sequential chain
-    sequential_chain = SequentialChain(
-        chains=[assessment_chain, technique_chain, action_chain],
-        input_variables=["user_message"],
-        output_variables=["final_response"],
-        verbose=True,
-    )
-
-    return sequential_chain
+    return chain

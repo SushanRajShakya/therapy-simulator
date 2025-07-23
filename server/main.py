@@ -15,11 +15,13 @@ cbt_chain = create_cbt_sequential_chain()
 def chat_with_llm(request: ChatRequest):
     try:
         # Use the CBT sequential chain
-        llm_response = cbt_chain.run(user_message=request.message)
+        llm_response = cbt_chain.invoke({"user_message": request.message})
+
+        print("-----------------------")
+        print(llm_response)
+        print("-----------------------")
 
         data = ChatResponse(response=llm_response, session_id=request.session_id)
-
-        print(f"{str(data)}")
 
         return data
     except Exception as e:
