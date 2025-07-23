@@ -38,8 +38,6 @@ class ChatInterface:
         st.session_state.messages.append({"role": "user", "content": content})
 
     def _add_bot_response(self, user_input):
-        bot_response = DEFAULT_BOT_RESPONSE.format(user_input)
-        st.session_state.messages.append({"role": "assistant", "content": bot_response})
         try:
             # Call FastAPI backend
             response = requests.post(
@@ -50,8 +48,6 @@ class ChatInterface:
                 },
                 timeout=30,
             )
-
-            print(response)
 
             if response.status_code == 200:
                 bot_response = response.json()["response"]

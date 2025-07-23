@@ -1,14 +1,13 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
 
 from models.chat import *
 from constants import *
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 app = FastAPI(title=SERVER_NAME)
 
@@ -18,7 +17,7 @@ client = OpenAI(api_key=open_ai_api_key)
 
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat_with_llm(request: ChatRequest):
+def chat_with_llm(request: ChatRequest):
     try:
         # Call OpenAI API
         response = client.chat.completions.create(
@@ -37,10 +36,11 @@ async def chat_with_llm(request: ChatRequest):
 
         data = ChatResponse(response=llm_response, session_id=request.session_id)
 
-        print(data)
+        print(f"{str(data)}")
 
         return data
     except Exception as e:
+        print(f"OpenAI API error: {str(e)}")  # Add logging
         raise HTTPException(status_code=500, detail=f"LLM API error: {str(e)}")
 
 
