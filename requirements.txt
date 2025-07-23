@@ -2,5 +2,9 @@
 streamlit
 watchdog
 
+# Backend dependencies
 python-dotenv>=1.1.1
 fastapi[standard]
+
+# LLM
+openai
