@@ -10,3 +10,8 @@ fastapi[standard]
 langchain_openai
 langchain
 langgraph
+
+# Vector store dependencies
+pinecone
+datasets
+

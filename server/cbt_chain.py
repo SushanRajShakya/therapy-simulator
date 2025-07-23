@@ -6,17 +6,11 @@ from langchain_core.runnables import RunnableSequence
 from langchain_core.output_parsers import StrOutputParser
 
 
-from server.config import MODEL_CONFIG
-
-# Load environment variables
-load_dotenv(override=True)
-
-# Configure OpenAI
-open_ai_api_key = os.getenv("OPENAI_API_KEY")
+from server.config import *
 
 # Configure LangChain LLM
 llm_model = ChatOpenAI(
-    api_key=open_ai_api_key,
+    api_key=OPENAI_API_KEY,
     model=MODEL_CONFIG["model"],
     temperature=MODEL_CONFIG["temperature"],
 )
