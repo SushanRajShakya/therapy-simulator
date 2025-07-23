@@ -12,9 +12,6 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-echo "Installing dependencies..."
-pip install -r requirements.txt
-
 echo "Starting frontend on http://localhost:8501"
 echo "Make sure the server is running on port 8000"
 echo "Press Ctrl+C to stop the frontend"
