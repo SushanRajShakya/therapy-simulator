@@ -84,7 +84,9 @@ class ChatInterface:
         for char in bot_response:
             full_response += char
             message_placeholder.markdown(full_response + "▌")  # Add cursor effect
-            time.sleep(0.02)  # Adjust speed of typing (0.02 seconds per character)
+            time.sleep(
+                0.005
+            )  # Adjust speed of typing (0.005 seconds per character - faster typing)
 
         # Remove cursor and show final message
         message_placeholder.markdown(full_response)
