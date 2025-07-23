@@ -30,11 +30,9 @@ class ChatInterface:
 
     def _handle_input(self):
         if user_input := st.chat_input(CHAT_INPUT_PLACEHOLDER):
-            # Add user message and update UI immediately
+            # Add user message
             self._add_user_message(user_input)
-            st.rerun()
-
-            # Add bot response (this will trigger another rerun internally)
+            # Add bot response (both will be displayed after this rerun)
             self._add_bot_response(user_input)
 
     def _add_user_message(self, content):
