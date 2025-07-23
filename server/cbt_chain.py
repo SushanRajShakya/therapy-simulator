@@ -4,7 +4,7 @@ from langchain.chains import LLMChain, SequentialChain
 from langchain.prompts import PromptTemplate
 from langchain_openai import OpenAI as LangChainOpenAI
 
-from config import *
+from config import MODEL_CONFIG
 
 # Load environment variables
 load_dotenv(override=True)
@@ -55,7 +55,19 @@ def create_cbt_sequential_chain():
         Original user message: {user_message}
         
         Now apply appropriate CBT techniques from the following list:
-        {CBT_TECHNIQUES}
+        1. ABC Model: Helps you reinterpret irrational beliefs resulting in alternative behaviors.
+          a. Activating Event: An event that would lead to emotional distress or dysfunctional thinking
+          b. Belief: The negative thoughts that occurred due to the activating event
+          c. Consequences: The negative feelings and behaviors that occurred as a result of the event.
+        2. Guided Discovery: The therapist will put themselves in your shoes and try to see things from your viewpoint. They will walk you through the process by asking you questions to challenge and broaden your thinking.
+        3. Exposure Therapy: Exposing yourself to the trigger can reduce responses.It may be uncomfortable during the initial sessions but is generally performed in a controlled environment with the therapist's help. This treatment is beneficial for phobias.
+        4. Cognitive Restructuring: This treatment focuses on finding and altering irrational thoughts so they are adaptive and reasonable.
+        5. Activity Scheduling: The therapist will help identify and schedule helpful behaviors that you enjoy doing. This can include hobbies or fun and rewarding activities.
+        6. The Worst Case/Best Case/Most Likely Case Scenario: Letting your thoughts ruminate and explore all three scenarios helps you rationalize your thoughts and develop actionable steps so control of the behavior is realized.
+        7. Acceptance and Commitment Therapy: This approach encourages you to accept and embrace the feelings rather than fighting them. This differs from traditional CBT where you are taught to control the thoughts.
+        8. Journaling: Recording your thoughts in a journal or diary can help build awareness of cognitive errors and help better understand your personal cognition.
+        9. Behavioral Experiments: These experiments are designed to test and identify negative thought patterns. You will be asked to predict what will happen and discuss the results later. It is better to start with lower anxiety experiments before tackling more distressing ones.
+        10. Role-Playing: This technique can help you practice difficult scenarios you may encounter. It can lessen the fear and help improve problem-solving skills, social interactions, building confidence for specific situations, and improving communication skills.
         
         Choose 1-2 most relevant techniques and guide the user through them with specific questions or exercises.
         Focus on helping them identify and examine their thoughts, feelings, and behaviors.
