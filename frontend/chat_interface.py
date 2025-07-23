@@ -30,9 +30,12 @@ class ChatInterface:
 
     def _handle_input(self):
         if user_input := st.chat_input(CHAT_INPUT_PLACEHOLDER):
+            # Add user message and update UI immediately
             self._add_user_message(user_input)
-            self._add_bot_response(user_input)
             st.rerun()
+
+            # Add bot response (this will trigger another rerun internally)
+            self._add_bot_response(user_input)
 
     def _add_user_message(self, content):
         st.session_state.messages.append({"role": "user", "content": content})
@@ -58,3 +61,4 @@ class ChatInterface:
             bot_response = "Connection error. Please check if the server is running."
 
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
+        st.rerun()

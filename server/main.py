@@ -3,7 +3,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 
-from models.chat import *
+from chat_model import *
 from constants import *
 
 # Load environment variables

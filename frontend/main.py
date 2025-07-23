@@ -1,8 +1,8 @@
 import streamlit as st
 from constants import *
 from config import *
-from components.sidebar import Sidebar
-from components.chat_interface import ChatInterface
+from sidebar import Sidebar
+from chat_interface import ChatInterface
 
 # Page config
 st.set_page_config(
