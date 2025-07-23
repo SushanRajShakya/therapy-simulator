@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
 
-from chat_model import *
-from constants import *
-from cbt_chain import create_cbt_sequential_chain
+from server.chat_model import *
+from server.constants import *
+from server.cbt_chain import create_cbt_sequential_chain
 
 app = FastAPI(title=SERVER_NAME)
 
