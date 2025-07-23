@@ -46,9 +46,9 @@ By grounding simulated interactions in established CBT practices and literature,
    cd therapy-simulator
    ```
 
-2. **Set up virtual environment**
+2. **Set up virtual environment** (Optional but recommended)
 
-   Firstly install [Conda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html)
+   Install [Conda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html) if you haven't already.
 
    ```bash
    # Create necessary virtual env named 'therapy-simulator'
@@ -61,23 +61,49 @@ By grounding simulated interactions in established CBT practices and literature,
 3. **Install dependencies**
 
    ```bash
-   # Installs necessary dependencies for the project in virtual env
+   # Installs necessary dependencies for the project
    pip install -r requirements.txt
    ```
 
 4. **Configure environment variables**
 
    ```bash
-   # Copy environments from .env.example and edit .env with necessary values
+   # Copy environment template and edit with your API keys
    cp .env.example .env
    ```
 
-5. **Run the application**
+   Edit the `.env` file and add your OpenAI API key:
 
    ```bash
-   # Start FastAPI backend
-   fastapi dev server/main.py
-
-   # Start Streamlit frontend (in new terminal)
-   streamlit run ./frontend/main.py
+   OPENAI_API_KEY=your_actual_openai_api_key_here
    ```
+
+   Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys).
+
+5. **Run the application**
+
+   **Option A: Using the provided startup scripts (Recommended)**
+
+   ```bash
+   # Start the backend server
+   ./start_server.sh
+
+   # In a new terminal, start the frontend
+   ./start_frontend.sh
+   ```
+
+   **Option B: Manual startup**
+
+   ```bash
+   # Start FastAPI backend server
+   uvicorn server.main:app --reload --port 8000
+
+   # In a new terminal, start Streamlit frontend
+   streamlit run frontend/main.py
+   ```
+
+6. **Access the application**
+
+   - Backend API: http://127.0.0.1:8000
+   - Frontend UI: http://localhost:8501
+   - API Documentation: http://127.0.0.1:8000/docs
