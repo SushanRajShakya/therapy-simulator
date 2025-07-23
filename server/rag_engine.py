@@ -39,9 +39,9 @@ class RAGEngine:
         chunks = self.text_splitter.create_documents(texts)
         self.vectorstore.add_documents(chunks)
 
-    def add_hf_dataset(
+    def add_dataset(
         self,
-        hf_path: str,
+        dataset_path: str,
         split: str = "train",
         text_key: str = "text",
         limit: int = None,
@@ -49,12 +49,12 @@ class RAGEngine:
         """
         Loads a Hugging Face dataset and adds its text to the vectorstore.
         Args:
-            hf_path: Hugging Face dataset path (e.g. 'Psychotherapy-LLM/CBT-Bench')
+            dataset_path: Hugging Face dataset path (e.g. 'Psychotherapy-LLM/CBT-Bench')
             split: Dataset split (e.g. 'train')
             text_key: Key for text field in dataset
             limit: Optional limit on number of rows
         """
-        dataset = load_dataset(hf_path, split=split)
+        dataset = load_dataset(dataset_path, split=split)
         if limit:
             dataset = dataset.select(range(limit))
         docs = []
@@ -71,7 +71,7 @@ class RAGEngine:
 
 # Example usage (to be integrated in FastAPI endpoints or LCEL workflows):
 # rag = RAGEngine(index_name="therapy-cbt")
-# rag.add_hf_dataset("Psychotherapy-LLM/CBT-Bench", split="train", text_key="text", limit=100)
-# rag.add_hf_dataset("epsilon3/cbt-cognitive-distortions-analysis", split="train", text_key="text", limit=100)
+# rag.add_dataset("Psychotherapy-LLM/CBT-Bench", split="train", text_key="text", limit=100)
+# rag.add_dataset("epsilon3/cbt-cognitive-distortions-analysis", split="train", text_key="text", limit=100)
 # response = rag.query("How does CBT help with negative thoughts?")
 # print(response)
