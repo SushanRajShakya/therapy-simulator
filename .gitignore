@@ -254,7 +254,6 @@ docker-compose.override.yml
 *.h5
 *.pt
 *.pth
-models/
 checkpoints/
 
 # Data files
