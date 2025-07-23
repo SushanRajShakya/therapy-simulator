@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 
 from chat_model import *
 from constants import *
+from config import CBT_THERAPIST_SYSTEM_PROMPT, MODEL_CONFIG
 
 # Load environment variables
 load_dotenv(override=True)
@@ -21,15 +22,16 @@ def chat_with_llm(request: ChatRequest):
     try:
         # Call OpenAI API
         response = client.chat.completions.create(
-            model="gpt-4.1-nano",
+            model=MODEL_CONFIG["model"],
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a helpful therapy assistant trained in CBT techniques.",
+                    "content": CBT_THERAPIST_SYSTEM_PROMPT,
                 },
                 {"role": "user", "content": request.message},
             ],
-            temperature=1,
+            temperature=MODEL_CONFIG["temperature"],
+            max_tokens=MODEL_CONFIG["max_tokens"],
         )
 
         llm_response = response.choices[0].message.content
