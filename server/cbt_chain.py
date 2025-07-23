@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from langchain.prompts import ChatPromptTemplate
-from langchain_openai import OpenAI as LangChainOpenAI
+from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableSequence
 from langchain_core.output_parsers import StrOutputParser
 
@@ -15,7 +15,7 @@ load_dotenv(override=True)
 open_ai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Configure LangChain LLM
-llm_model = LangChainOpenAI(
+llm_model = ChatOpenAI(
     api_key=open_ai_api_key,
     model=MODEL_CONFIG["model"],
     temperature=MODEL_CONFIG["temperature"],
