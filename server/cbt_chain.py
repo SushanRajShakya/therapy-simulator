@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai import OpenAI as LangChainOpenAI
 from langchain_core.runnables import RunnableSequence
+from langchain_core.output_parsers import StrOutputParser
 
 
 from server.config import MODEL_CONFIG
@@ -85,42 +86,22 @@ def create_cbt_sequential_chain():
         """,
     )
 
-    # Step 1: Assessment Runnable
-    assessment = assessment_prompt | llm_model
+    assessment = assessment_prompt | llm_model | StrOutputParser()
 
-    # Step 2: Technique Runnable with proper input formatting
-    def format_for_technique(inputs):
-        if isinstance(inputs, dict):
-            return {"assessment": inputs.get("assessment", inputs.get("message", ""))}
-        return {"assessment": str(inputs)}
+    apply_cbt_technique = (
+        assessment
+        | (lambda input: {"assessment": input})
+        | technique_prompt
+        | llm_model
+        | StrOutputParser()
+    )
 
-    apply_cbt_technique = format_for_technique | technique_prompt | llm_model
+    therapeutic_response = (
+        apply_cbt_technique
+        | (lambda input: {"techniques_application": input})
+        | action_prompt
+        | llm_model
+        | StrOutputParser()
+    )
 
-    # Step 3: Action Runnable with proper input formatting
-    def format_for_action(inputs):
-        if isinstance(inputs, dict):
-            return {
-                "techniques_application": inputs.get(
-                    "techniques_application", str(inputs)
-                )
-            }
-        return {"techniques_application": str(inputs)}
-
-    therapeutic_response = format_for_action | action_prompt | llm_model
-
-    # Create a sequential chain that properly passes data between steps
-    def sequential_chain(inputs):
-        # Step 1: Assessment
-        assessment_result = assessment.invoke(inputs)
-
-        # Step 2: Apply CBT techniques based on assessment
-        technique_result = apply_cbt_technique.invoke({"assessment": assessment_result})
-
-        # Step 3: Generate final therapeutic response
-        final_response = therapeutic_response.invoke(
-            {"techniques_application": technique_result}
-        )
-
-        return final_response
-
-    return sequential_chain
+    return therapeutic_response
