@@ -6,9 +6,6 @@ watchdog
 python-dotenv
 fastapi[standard]
 
-# LLM
-openai
-
 # Langchain dependencies
 langchain_openai
 langchain
