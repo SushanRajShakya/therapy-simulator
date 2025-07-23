@@ -81,27 +81,16 @@ def create_cbt_sequential_chain():
         - Your final response should be natural and conversational, as if spoken directly to a patient as client
         - Do not include step-by-step breakdown in your final response
         - Provides specific, actionable next steps 
-        - Asks open-ended questions for continued exploration
         - Be very kind, supportive, and empathetic in your final response
+        - Do not directly use the CBT technique names in your final response, instead integrate them naturally into the conversation
+        - Always end with an open-ended question to encourage further discussion
         """,
     )
 
-    assessment = assessment_prompt | llm_model | StrOutputParser()
+    assessment = assessment_prompt | llm_model
 
-    apply_cbt_technique = (
-        assessment
-        | (lambda input: {"assessment": input})
-        | technique_prompt
-        | llm_model
-        | StrOutputParser()
-    )
+    apply_cbt_technique = technique_prompt | llm_model
 
-    therapeutic_response = (
-        apply_cbt_technique
-        | (lambda input: {"techniques_application": input})
-        | action_prompt
-        | llm_model
-        | StrOutputParser()
-    )
+    therapeutic_response = action_prompt | llm_model | StrOutputParser()
 
-    return therapeutic_response
+    return RunnableSequence(assessment, apply_cbt_technique, therapeutic_response)
