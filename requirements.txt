@@ -5,6 +5,7 @@ watchdog
 # Backend dependencies
 python-dotenv
 fastapi[standard]
+uvicorn
 
 # Langchain dependencies
 langchain_openai
