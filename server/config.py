@@ -17,4 +17,4 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Configure Pinecone API Key
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT", "us-east1-gcp")
-PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "therapy-cbt")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "therapy-simulator")

@@ -18,7 +18,7 @@ class RAGEngine:
         self.index_name = PINECONE_INDEX_NAME
         self.pc = Pinecone(api_key=PINECONE_API_KEY)
         self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-ada-002",  # Latest embedding model
+            model="text-embedding-ada-002",  # 1536 dimensions
             api_key=OPENAI_API_KEY,
         )
         self.text_splitter = RecursiveCharacterTextSplitter(
