@@ -19,30 +19,39 @@ class Sidebar:
     def _has_therapeutic_content(self):
         """Check if the session has meaningful therapeutic content"""
         messages = st.session_state.get("messages", [])
-        
+
         # Need at least one user message and one assistant response for therapeutic content
         if len(messages) < 2:
             return False
-            
+
         # Check if there are any user messages that seem therapeutic
         user_messages = [msg for msg in messages if msg["role"] == "user"]
-        
+
         # Simple heuristic: if user has sent more than just greetings/procedural messages
         # or if there are multiple exchanges, assume therapeutic content exists
         if len(user_messages) >= 2:
             return True
-            
+
         # Check if the single user message seems substantive (not just greeting)
         if len(user_messages) == 1:
             user_msg = user_messages[0]["content"].lower().strip()
             greeting_patterns = [
-                "hi", "hello", "hey", "good morning", "good afternoon", 
-                "nice to meet", "should we start", "how are you", "doctor"
+                "hi",
+                "hello",
+                "hey",
+                "good morning",
+                "good afternoon",
+                "nice to meet",
+                "should we start",
+                "how are you",
+                "doctor",
             ]
             # If message is longer than 20 chars and doesn't match greeting patterns, consider it therapeutic
-            if len(user_msg) > 20 and not any(pattern in user_msg for pattern in greeting_patterns):
+            if len(user_msg) > 20 and not any(
+                pattern in user_msg for pattern in greeting_patterns
+            ):
                 return True
-                
+
         return False
 
     def _render_session_controls(self):
