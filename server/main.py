@@ -30,23 +30,62 @@ def chat_with_llm(request: ChatRequest):
                 is_session_ended=True,
             )
 
-        # Add user message to session
+        # Add user message to session first (always track what user says)
         session_manager.add_message(request.session_id, "user", request.message)
 
-        # Get conversation context for more cost-effective processing
-        conversation_context = session_manager.get_conversation_context(
-            request.session_id
+        # Classify the message to determine response strategy
+        message_classification = session_manager.classify_message(
+            request.message, request.session_id
+        )
+        print(
+            f"Message classification: {message_classification} for message: '{request.message[:50]}...'"
         )
 
-        # Use the CBT sequential chain with conversation context
-        llm_response = cbt_chain.invoke(
-            {"message": request.message, "conversation_context": conversation_context}
-        )
+        # Handle session end detection
+        if message_classification == "SESSION_END":
+            print("Natural session end detected")
+            # Generate final conclusion
+            conclusion = session_manager.generate_session_conclusion(request.session_id)
+            session_manager.add_message(request.session_id, "assistant", conclusion)
 
-        # Add assistant response to session
-        session_manager.add_message(request.session_id, "assistant", llm_response)
+            return ChatResponse(
+                response=conclusion,
+                session_id=request.session_id,
+                is_session_ended=True,
+            )
 
-        return ChatResponse(response=llm_response, session_id=request.session_id)
+        # For simple messages, use lightweight response (no RAG/CBT chain)
+        if message_classification in ["GREETING", "PROCEDURAL", "SMALL_TALK"]:
+            print(f"Using simple response for {message_classification}")
+            simple_response = session_manager.generate_simple_response(
+                request.message, request.session_id, message_classification
+            )
+            session_manager.add_message(
+                request.session_id, "assistant", simple_response
+            )
+
+            return ChatResponse(response=simple_response, session_id=request.session_id)
+
+        # For therapeutic content, use full CBT chain with RAG
+        if message_classification == "THERAPEUTIC":
+            print("Using full CBT chain with RAG")
+            # Get conversation context for more cost-effective processing
+            conversation_context = session_manager.get_conversation_context(
+                request.session_id
+            )
+
+            # Use the CBT sequential chain with conversation context
+            llm_response = cbt_chain.invoke(
+                {
+                    "message": request.message,
+                    "conversation_context": conversation_context,
+                }
+            )
+
+            # Add assistant response to session
+            session_manager.add_message(request.session_id, "assistant", llm_response)
+
+            return ChatResponse(response=llm_response, session_id=request.session_id)
 
     except Exception as e:
         print(f"CBT Chain error: {str(e)}")  # Add logging

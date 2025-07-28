@@ -63,6 +63,127 @@ class SessionManager:
 
         return context
 
+    def classify_message(self, message: str, session_id: str) -> str:
+        """Classify user message to determine response strategy"""
+        conversation_context = self.get_conversation_context(session_id)
+
+        classification_prompt = ChatPromptTemplate.from_template(
+            """
+            You are a CBT therapist assistant that classifies patient messages to optimize response strategy.
+
+            Patient message: "{message}"
+            
+            Conversation context:
+            {context}
+
+            Classify this message into ONE of these categories:
+
+            GREETING: Simple hellos, introductions, pleasantries (e.g., "Hi doctor", "Nice to meet you", "How are you?")
+            
+            PROCEDURAL: Questions about the session process (e.g., "Should we start?", "How does this work?", "What do we do now?")
+            
+            SESSION_END: Patient wants to end the session (e.g., "Have a good day doc", "See you soon", "I think I feel ok now", "Ready to end", "That's all for today", "I should go", "Thanks for today")
+            
+            THERAPEUTIC: Meaningful emotional/psychological content that requires full CBT analysis (e.g., sharing feelings, problems, thoughts, experiences, concerns, asking for help with specific issues)
+
+            SMALL_TALK: Casual conversation not requiring therapeutic intervention (e.g., comments about weather, general life updates without emotional content)
+
+            Respond with ONLY the category name: GREETING, PROCEDURAL, SESSION_END, THERAPEUTIC, or SMALL_TALK
+            """
+        )
+
+        try:
+            classification_result = (classification_prompt | self.llm).invoke(
+                {"message": message, "context": conversation_context}
+            )
+            classification = classification_result.content.strip().upper()
+
+            # Validate classification
+            valid_classifications = [
+                "GREETING",
+                "PROCEDURAL",
+                "SESSION_END",
+                "THERAPEUTIC",
+                "SMALL_TALK",
+            ]
+            if classification in valid_classifications:
+                return classification
+            else:
+                # Default to THERAPEUTIC if classification is unclear
+                return "THERAPEUTIC"
+
+        except Exception as e:
+            print(f"Error classifying message: {e}")
+            # Default to THERAPEUTIC to be safe
+            return "THERAPEUTIC"
+
+    def generate_simple_response(
+        self, message: str, session_id: str, response_type: str
+    ) -> str:
+        """Generate simple responses for non-therapeutic messages"""
+        conversation_context = self.get_conversation_context(session_id)
+
+        if response_type == "GREETING":
+            prompt_template = """
+            You are a warm, professional CBT therapist responding to a patient's greeting.
+            
+            Patient message: "{message}"
+            Conversation context: {context}
+            
+            Provide a brief, warm greeting response that:
+            - Acknowledges their greeting warmly
+            - Maintains professional therapeutic boundaries
+            - Gently transitions toward therapeutic conversation
+            - Is contextually appropriate (don't re-introduce yourself if already met)
+            
+            Keep it brief and natural (1-2 sentences).
+            """
+
+        elif response_type == "PROCEDURAL":
+            prompt_template = """
+            You are a CBT therapist responding to a patient's procedural question.
+            
+            Patient message: "{message}"
+            Conversation context: {context}
+            
+            Provide a brief, helpful response that:
+            - Answers their procedural question
+            - Reassures them about the process
+            - Encourages them to share what's on their mind
+            - Maintains a supportive, professional tone
+            
+            Keep it brief and encouraging (1-3 sentences).
+            """
+
+        elif response_type == "SMALL_TALK":
+            prompt_template = """
+            You are a CBT therapist responding to casual conversation.
+            
+            Patient message: "{message}"
+            Conversation context: {context}
+            
+            Provide a brief response that:
+            - Acknowledges their comment politely
+            - Gently redirects toward therapeutic topics
+            - Shows interest in their wellbeing
+            - Maintains professional therapeutic focus
+            
+            Keep it brief and gently redirecting (1-2 sentences).
+            """
+
+        simple_prompt = ChatPromptTemplate.from_template(prompt_template)
+
+        try:
+            response_result = (simple_prompt | self.llm).invoke(
+                {"message": message, "context": conversation_context}
+            )
+            return response_result.content
+        except Exception as e:
+            print(f"Error generating simple response: {e}")
+            return (
+                "Thank you for sharing that. What would you like to talk about today?"
+            )
+
     def _generate_summary(self, session_id: str) -> str:
         """Generate a therapeutic summary of the conversation"""
         session = self.get_session(session_id)

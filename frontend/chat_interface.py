@@ -26,7 +26,7 @@ class ChatInterface:
     def _render_header(self):
         st.title(TITLE)
         st.caption(
-            "💬 Have a conversation with your CBT therapist. Click 'End Session' when you're ready for a conclusion."
+            "💬 Have a conversation with your CBT therapist. The bot will naturally recognize when you're ready to end the session, or you can use the manual controls below."
         )
 
     def _display_messages(self):
@@ -45,14 +45,16 @@ class ChatInterface:
     def _render_session_controls(self):
         # Only show controls if session is not ended
         if not st.session_state.get("session_ended", False):
-            st.markdown("---")
-            col1, col2 = st.columns([3, 1])
-
-            with col2:
+            # Make the end session button more discrete
+            with st.expander("Session Controls", expanded=False):
+                st.caption(
+                    "The bot can naturally detect when you want to end the session, or you can manually end it here."
+                )
                 if st.button(
-                    "🏁 End Session",
+                    "End Session Manually",
                     type="secondary",
-                    help="Get a therapeutic conclusion and end the session",
+                    help="Manually end the session and get a therapeutic conclusion",
+                    use_container_width=False,
                 ):
                     st.session_state.end_session_requested = True
                     st.rerun()
@@ -111,10 +113,23 @@ class ChatInterface:
                 # Now stream the response with typing effect
                 self._stream_response(bot_response)
 
-            # Add the response to messages and rerun to display it properly
-            st.session_state.messages.append(
-                {"role": "assistant", "content": bot_response}
-            )
+            # Check if this was a natural session conclusion
+            if st.session_state.get("is_natural_conclusion", False):
+                # Add the response as a conclusion to messages
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": bot_response,
+                        "is_conclusion": True,
+                    }
+                )
+                delattr(st.session_state, "is_natural_conclusion")
+            else:
+                # Add the response to messages normally
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": bot_response}
+                )
+
             st.rerun()
 
     def _add_user_message(self, content):
@@ -156,7 +171,15 @@ class ChatInterface:
             )
 
             if response.status_code == 200:
-                return response.json()["response"]
+                response_data = response.json()
+
+                # Check if the session was naturally ended by the bot
+                if response_data.get("is_session_ended", False):
+                    st.session_state.session_ended = True
+                    # Mark this as a conclusion for special formatting
+                    st.session_state.is_natural_conclusion = True
+
+                return response_data["response"]
             else:
                 return "Sorry, I'm having trouble connecting right now."
 
