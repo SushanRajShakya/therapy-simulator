@@ -62,17 +62,23 @@ def create_cbt_sequential_chain():
 
         Based on the patient's current message, conversation history, and the retrieved therapeutic knowledge, provide a comprehensive assessment covering:
 
-        1. EMOTIONAL STATE: What emotions are being expressed in this message and how do they relate to previous sessions?
-        2. COGNITIVE PATTERNS: What thought patterns, beliefs, or cognitive distortions are evident? Any patterns from previous conversations?
-        3. BEHAVIORAL ASPECTS: What behaviors or avoidance patterns are described? Any changes from earlier discussions?
-        4. TRIGGERS & CONTEXT: What situations or events seem to trigger these responses? Connection to previous sessions?
-        5. THERAPEUTIC PROGRESS: How does this message show progress or challenges compared to earlier conversations?
-        6. SEVERITY & IMPACT: How significantly is this affecting their daily functioning?
+        1. CONVERSATION STATE: Determine if this is a first interaction or continuation of an ongoing therapeutic relationship
+        2. EMOTIONAL STATE: What emotions are being expressed in this message and how do they relate to previous sessions?
+        3. COGNITIVE PATTERNS: What thought patterns, beliefs, or cognitive distortions are evident? Any patterns from previous conversations?
+        4. BEHAVIORAL ASPECTS: What behaviors or avoidance patterns are described? Any changes from earlier discussions?
+        5. TRIGGERS & CONTEXT: What situations or events seem to trigger these responses? Connection to previous sessions?
+        6. THERAPEUTIC PROGRESS: How does this message show progress or challenges compared to earlier conversations?
+        7. SEVERITY & IMPACT: How significantly is this affecting their daily functioning?
+
+        IMPORTANT: Pay special attention to the conversation context to determine:
+        - Is this the patient's first message in the session?
+        - Are they continuing a previous topic or introducing something new?
+        - What therapeutic rapport has already been established?
 
         Reference similar cases from the therapeutic examples when relevant. Keep your assessment clinical but empathetic.
         Consider the ongoing therapeutic relationship and build upon previous insights when available.
         
-        Format your response as a structured assessment that will inform CBT technique selection.
+        Format your response as a structured assessment that will inform CBT technique selection and conversation continuity.
         """,
     )
 
@@ -116,16 +122,26 @@ def create_cbt_sequential_chain():
 
         CBT technique recommendations: ###{techniques_application}###
 
+        Conversation context (summary and recent history):
+        {conversation_context}
+
         Relevant therapeutic examples and knowledge:
         {retrieved_context}
 
         Create a rich, contextual therapeutic response that:
+
+        CONVERSATION AWARENESS:
+        - Review the conversation context to understand where you are in the therapeutic relationship
+        - If this is a continuation of an ongoing conversation, respond naturally without greeting the patient again
+        - Only provide initial greetings if this appears to be the very first interaction
+        - Build upon previous topics and insights from the conversation history
 
         THERAPEUTIC COMMUNICATION:
         - Model your tone and style on the professional examples in the retrieved context
         - Respond as if speaking directly to the patient with warmth and understanding
         - Acknowledge and validate their feelings and experiences
         - Never provide medical diagnoses or advice
+        - Maintain conversational continuity based on the session history
 
         INTEGRATION OF CBT TECHNIQUES:
         - Seamlessly weave the recommended techniques into natural conversation
@@ -144,6 +160,9 @@ def create_cbt_sequential_chain():
         - Maintain hope and emphasize the patient's strengths and agency
         - Keep the response conversational and accessible, not clinical
         - Show empathy while gently introducing therapeutic perspectives
+        - Continue the natural flow of conversation without unnecessary introductions
+
+        IMPORTANT: If the conversation context shows previous exchanges, do NOT greet the patient again. Simply continue the therapeutic conversation naturally.
 
         Use the retrieved context to inform your communication style and ensure your response reflects evidence-based therapeutic practice.
         """,

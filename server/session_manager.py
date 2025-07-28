@@ -55,6 +55,12 @@ class SessionManager:
             for msg in messages[-4:]:
                 context += f"{msg.role.title()}: {msg.content}\n"
 
+        # Add conversation state information
+        if len(messages) == 0:
+            context += "\nCONVERSATION STATE: This is the very first interaction with this patient. A greeting is appropriate."
+        elif len(messages) >= 2:
+            context += f"\nCONVERSATION STATE: This is an ongoing conversation with {len(messages)//2} previous exchanges. The therapeutic relationship is already established. Do NOT greet the patient again."
+
         return context
 
     def _generate_summary(self, session_id: str) -> str:
