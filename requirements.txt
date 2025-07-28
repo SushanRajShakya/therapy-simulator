@@ -12,7 +12,8 @@ langchain_openai
 langchain
 langgraph
 
-# Vector store dependencies
+# Add these updated dependencies to requirements.txt
 pinecone
-datasets
-
+pinecone-client>=3.0.0  
+langchain-pinecone      
+langchain-community     
