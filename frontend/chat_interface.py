@@ -111,6 +111,12 @@ class ChatInterface:
                 # Now stream the response with typing effect
                 self._stream_response(bot_response)
 
+            # Add the response to messages and rerun to display it properly
+            st.session_state.messages.append(
+                {"role": "assistant", "content": bot_response}
+            )
+            st.rerun()
+
     def _add_user_message(self, content):
         st.session_state.messages.append({"role": "user", "content": content})
         # Set flag to process bot response on next rerun
@@ -168,6 +174,3 @@ class ChatInterface:
 
         # Stream the response using st.write_stream
         st.write_stream(response_generator())
-
-        # Add the complete response to session state
-        st.session_state.messages.append({"role": "assistant", "content": bot_response})
