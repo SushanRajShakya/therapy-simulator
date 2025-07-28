@@ -117,12 +117,34 @@ def create_cbt_sequential_chain():
     # Create the chain with RAG integration
     context_retrieval = RunnableLambda(retrieve_context)
 
-    assessment = assessment_prompt | llm_model
+    # Step 1: Assessment with context
+    def run_assessment(inputs):
+        assessment_result = (assessment_prompt | llm_model).invoke(inputs)
+        return {
+            "message": inputs["message"],
+            "retrieved_context": inputs["retrieved_context"],
+            "assessment": assessment_result.content,
+        }
 
-    apply_cbt_technique = technique_prompt | llm_model
+    # Step 2: Technique application with context
+    def run_technique_application(inputs):
+        technique_result = (technique_prompt | llm_model).invoke(inputs)
+        return {
+            "message": inputs["message"],
+            "retrieved_context": inputs["retrieved_context"],
+            "assessment": inputs["assessment"],
+            "techniques_application": technique_result.content,
+        }
 
-    therapeutic_response = action_prompt | llm_model | StrOutputParser()
+    # Step 3: Final therapeutic response
+    def run_therapeutic_response(inputs):
+        response_result = (action_prompt | llm_model | StrOutputParser()).invoke(inputs)
+        return response_result
+
+    assessment_step = RunnableLambda(run_assessment)
+    technique_step = RunnableLambda(run_technique_application)
+    response_step = RunnableLambda(run_therapeutic_response)
 
     return RunnableSequence(
-        context_retrieval, assessment, apply_cbt_technique, therapeutic_response
+        context_retrieval, assessment_step, technique_step, response_step
     )
