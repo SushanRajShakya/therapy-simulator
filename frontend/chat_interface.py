@@ -62,7 +62,7 @@ class ChatInterface:
                     "message": user_input,
                     "session_id": st.session_state.get("session_id", "default"),
                 },
-                timeout=30,
+                timeout=120,
             )
 
             if response.status_code == 200:
