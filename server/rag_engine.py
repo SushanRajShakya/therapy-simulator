@@ -13,9 +13,9 @@ from server.config import *
 
 
 class RAGEngine:
-    def __init__(self, index_name: str = PINECONE_INDEX_NAME):
+    def __init__(self):
         """Initialize RAG Engine with Pinecone vector store"""
-        self.index_name = index_name
+        self.index_name = PINECONE_INDEX_NAME
         self.pc = Pinecone(api_key=PINECONE_API_KEY)
         self.embeddings = OpenAIEmbeddings(
             model="text-embedding-ada-002",  # Latest embedding model
