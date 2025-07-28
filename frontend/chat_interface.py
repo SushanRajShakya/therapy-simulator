@@ -18,16 +18,21 @@ class ChatInterface:
             st.session_state.session_id = str(uuid.uuid4())
 
     def render(self):
+        # Always render header first to keep it at top
         self._render_header()
+        
+        # Chat content
         self._display_messages()
         self._handle_input()
-        self._render_session_controls()
+        self._render_session_completion_message()
 
     def _render_header(self):
-        st.title(TITLE)
-        st.caption(
-            "💬 Have a conversation with your CBT therapist. The bot will naturally recognize when you're ready to end the session, or you can use the manual controls below."
+        # Create a prominent header that stays at top
+        st.markdown("### Therapy Session Simulator")
+        st.info(
+            "💬 Have a conversation with your CBT therapist. The bot will naturally recognize when you're ready to end the session, or you can use the manual controls in the sidebar."
         )
+        st.markdown("---")  # Add separator after header
 
     def _display_messages(self):
         for message in st.session_state.messages:
@@ -42,31 +47,13 @@ class ChatInterface:
                 else:
                     st.chat_message("assistant").write(message["content"])
 
-    def _render_session_controls(self):
-        # Only show controls if session is not ended
-        if not st.session_state.get("session_ended", False):
-            # Make the end session button more discrete
-            with st.expander("Session Controls", expanded=False):
-                st.caption(
-                    "The bot can naturally detect when you want to end the session, or you can manually end it here."
-                )
-                if st.button(
-                    "End Session Manually",
-                    type="secondary",
-                    help="Manually end the session and get a therapeutic conclusion",
-                    use_container_width=False,
-                ):
-                    st.session_state.end_session_requested = True
-                    st.rerun()
-        else:
+    def _render_session_completion_message(self):
+        # Only show completion message if session is ended
+        if st.session_state.get("session_ended", False):
             st.markdown("---")
             st.success(
                 "✅ Session completed. Thank you for using the therapy simulator!"
             )
-            if st.button("🔄 Start New Session", type="primary"):
-                # Clear session and restart
-                st.session_state.clear()
-                st.rerun()
 
     def _handle_input(self):
         # Don't allow input if session is ended
@@ -76,6 +63,11 @@ class ChatInterface:
         # Handle end session request
         if st.session_state.get("end_session_requested", False):
             delattr(st.session_state, "end_session_requested")
+
+            # Check if there's therapeutic content before ending
+            if not self._has_therapeutic_content():
+                st.error("⚠️ Cannot end session without meaningful therapeutic conversation. Please share your thoughts or concerns first.")
+                return
 
             # Show loading message
             with st.chat_message("assistant"):
@@ -136,6 +128,35 @@ class ChatInterface:
         st.session_state.messages.append({"role": "user", "content": content})
         # Set flag to process bot response on next rerun
         st.session_state.pending_user_input = content
+
+    def _has_therapeutic_content(self):
+        """Check if the session has meaningful therapeutic content"""
+        messages = st.session_state.get("messages", [])
+        
+        # Need at least one user message and one assistant response for therapeutic content
+        if len(messages) < 2:
+            return False
+            
+        # Check if there are any user messages that seem therapeutic
+        user_messages = [msg for msg in messages if msg["role"] == "user"]
+        
+        # Simple heuristic: if user has sent more than just greetings/procedural messages
+        # or if there are multiple exchanges, assume therapeutic content exists
+        if len(user_messages) >= 2:
+            return True
+            
+        # Check if the single user message seems substantive (not just greeting)
+        if len(user_messages) == 1:
+            user_msg = user_messages[0]["content"].lower().strip()
+            greeting_patterns = [
+                "hi", "hello", "hey", "good morning", "good afternoon", 
+                "nice to meet", "should we start", "how are you", "doctor"
+            ]
+            # If message is longer than 20 chars and doesn't match greeting patterns, consider it therapeutic
+            if len(user_msg) > 20 and not any(pattern in user_msg for pattern in greeting_patterns):
+                return True
+                
+        return False
 
     def _get_session_conclusion(self):
         """Get session conclusion from the API"""
