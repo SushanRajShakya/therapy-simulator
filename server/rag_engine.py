@@ -228,7 +228,7 @@ class RAGEngine:
     def retrieve_context(self, query: str, k: int = 4) -> List[str]:
         """Retrieve relevant context for a query"""
         retriever = self.get_retriever(k=k)
-        docs = retriever.get_relevant_documents(query)
+        docs = retriever.invoke(query)
         return [doc.page_content for doc in docs]
 
     def get_qa_chain(self):
