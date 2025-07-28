@@ -1,5 +1,4 @@
 import os
-import time
 from typing import List, Dict, Optional
 from pinecone import Pinecone
 from datasets import load_dataset
@@ -39,21 +38,7 @@ class RAGEngine:
         )
 
     def _setup_index(self):
-        """Setup or connect to Pinecone index"""
-        existing_indexes = [index_info["name"] for index_info in self.pc.list_indexes()]
-
-        if self.index_name not in existing_indexes:
-            print(f"Creating new index: {self.index_name}")
-            self.pc.create_index(
-                name=self.index_name,
-                dimension=1536,  # text-embedding-ada-002 dimension
-                metric="cosine",
-                spec=ServerlessSpec(cloud="aws", region=PINECONE_ENVIRONMENT),
-            )
-            # Wait for index to be ready
-            while not self.pc.describe_index(self.index_name).status["ready"]:
-                time.sleep(1)
-
+        """Connect to existing Pinecone index"""
         self.index = self.pc.Index(self.index_name)
 
     def add_documents(
