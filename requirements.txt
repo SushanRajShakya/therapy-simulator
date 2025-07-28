@@ -13,7 +13,10 @@ langchain
 langgraph
 
 # Add these updated dependencies to requirements.txt
-pinecone
-pinecone-client>=3.0.0  
+# Vector store dependencies
+pinecone-client>=3.0.0
+langchain-pinecone
+langchain-community
+datasets  
 langchain-pinecone      
 langchain-community     
