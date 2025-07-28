@@ -1,7 +1,7 @@
 import os
 import time
 from typing import List, Dict, Optional
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone
 from datasets import load_dataset
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
@@ -19,13 +19,12 @@ class RAGEngine:
         self.index_name = index_name
         self.pc = Pinecone(api_key=PINECONE_API_KEY)
         self.embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small",  # Latest embedding model
+            model="text-embedding-ada-002",  # Latest embedding model
             api_key=OPENAI_API_KEY,
         )
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200,
-            separators=["\n\n", "\n", ". ", "! ", "? ", " ", ""],
+            chunk_size=500,
+            chunk_overlap=50,
         )
         self.llm = ChatOpenAI(
             api_key=OPENAI_API_KEY,
@@ -47,7 +46,7 @@ class RAGEngine:
             print(f"Creating new index: {self.index_name}")
             self.pc.create_index(
                 name=self.index_name,
-                dimension=1536,  # text-embedding-3-small dimension
+                dimension=1536,  # text-embedding-ada-002 dimension
                 metric="cosine",
                 spec=ServerlessSpec(cloud="aws", region=PINECONE_ENVIRONMENT),
             )
