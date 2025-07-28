@@ -123,6 +123,72 @@ class RAGEngine:
         metadatas = [item["metadata"] for item in cbt_techniques]
         self.add_documents(documents, metadatas)
 
+    def load_mental_health_conversations(self, limit: Optional[int] = 300):
+        """Load the specific mental health counseling conversations dataset"""
+        dataset_name = "Amod/mental_health_counseling_conversations"
+        try:
+            print(f"Loading dataset: {dataset_name}")
+            dataset = load_dataset(dataset_name, split="train")
+
+            if limit:
+                dataset = dataset.select(range(min(limit, len(dataset))))
+
+            documents = []
+            metadatas = []
+
+            for item in dataset:
+                # This dataset typically has 'Context' and 'Response' fields
+                # We'll combine them to create meaningful therapy examples
+                context = item.get("Context", "")
+                response = item.get("Response", "")
+
+                if context and response:
+                    # Create a conversation format
+                    conversation_text = f"Client: {context}\nTherapist: {response}"
+                    documents.append(conversation_text)
+                    metadatas.append(
+                        {
+                            "source": dataset_name,
+                            "type": "therapy_conversation",
+                            "client_message": context,
+                            "therapist_response": response,
+                        }
+                    )
+                elif context:
+                    # If only context available, still useful for understanding client concerns
+                    documents.append(f"Client concern: {context}")
+                    metadatas.append(
+                        {
+                            "source": dataset_name,
+                            "type": "client_concern",
+                            "content": context,
+                        }
+                    )
+                elif response:
+                    # If only response available, useful for therapeutic response patterns
+                    documents.append(f"Therapeutic response: {response}")
+                    metadatas.append(
+                        {
+                            "source": dataset_name,
+                            "type": "therapeutic_response",
+                            "content": response,
+                        }
+                    )
+
+            if documents:
+                self.add_documents(documents, metadatas)
+                print(
+                    f"Successfully loaded {len(documents)} therapy conversations from {dataset_name}"
+                )
+                return len(documents)
+            else:
+                print(f"No suitable content found in dataset {dataset_name}")
+                return 0
+
+        except Exception as e:
+            print(f"Error loading dataset {dataset_name}: {str(e)}")
+            return 0
+
     def load_therapy_dataset(self, dataset_name: str, limit: Optional[int] = 100):
         """Load therapy-related dataset from HuggingFace"""
         try:
@@ -229,12 +295,23 @@ if __name__ == "__main__":
     # Add CBT knowledge base
     rag.add_cbt_knowledge_base()
 
-    # Load therapy datasets (uncomment to use)
-    # rag.load_therapy_dataset("Amod/mental_health_counseling_conversations", limit=200)
-    # rag.load_therapy_dataset("heliosbrahma/mental_health_chatbot_dataset", limit=200)
+    # Load your preferred dataset
+    print("Loading mental health counseling conversations...")
+    count = rag.load_mental_health_conversations(limit=100)
+    print(f"Loaded {count} therapy conversations")
 
-    # Test retrieval
-    context = rag.retrieve_context("How can I deal with anxiety?")
-    print("Retrieved context:")
-    for i, ctx in enumerate(context):
-        print(f"{i+1}. {ctx[:200]}...")
+    # Test retrieval with therapy-specific queries
+    test_queries = [
+        "I'm feeling anxious about social situations",
+        "I have negative thoughts about myself",
+        "I feel depressed and unmotivated",
+    ]
+
+    print("\nTesting retrieval:")
+    for query in test_queries:
+        print(f"\nQuery: {query}")
+        context = rag.retrieve_context(query, k=2)
+        for i, ctx in enumerate(context):
+            print(f"{i+1}. {ctx[:200]}...")
+            if "Client:" in ctx and "Therapist:" in ctx:
+                print("   → Found therapy conversation example")

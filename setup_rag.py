@@ -29,32 +29,30 @@ def setup_rag_engine():
         # Load therapy datasets
         print("🔄 Loading therapy datasets...")
 
-        # Dataset 1: Mental health counseling conversations
+        # Primary Dataset: Mental health counseling conversations (your preferred dataset)
+        print("📊 Loading mental health counseling conversations...")
         try:
-            rag.load_therapy_dataset(
-                "Amod/mental_health_counseling_conversations", limit=200
-            )
-            print("✅ Loaded mental health counseling conversations")
+            count = rag.load_mental_health_conversations(limit=300)
+            print(f"✅ Loaded {count} mental health counseling conversations")
         except Exception as e:
             print(f"⚠️ Failed to load counseling conversations: {e}")
 
+        # Optional: Load additional datasets for broader context
+        # Uncomment these if you want more diverse therapeutic content
+
         # Dataset 2: Mental health chatbot dataset
-        try:
-            rag.load_therapy_dataset(
-                "heliosbrahma/mental_health_chatbot_dataset", limit=200
-            )
-            print("✅ Loaded mental health chatbot dataset")
-        except Exception as e:
-            print(f"⚠️ Failed to load chatbot dataset: {e}")
+        # try:
+        #     rag.load_therapy_dataset("heliosbrahma/mental_health_chatbot_dataset", limit=150)
+        #     print("✅ Loaded mental health chatbot dataset")
+        # except Exception as e:
+        #     print(f"⚠️ Failed to load chatbot dataset: {e}")
 
         # Dataset 3: Mental health conversational data
-        try:
-            rag.load_therapy_dataset(
-                "alexandreteles/mental-health-conversational-data", limit=150
-            )
-            print("✅ Loaded mental health conversational data")
-        except Exception as e:
-            print(f"⚠️ Failed to load conversational data: {e}")
+        # try:
+        #     rag.load_therapy_dataset("alexandreteles/mental-health-conversational-data", limit=100)
+        #     print("✅ Loaded mental health conversational data")
+        # except Exception as e:
+        #     print(f"⚠️ Failed to load conversational data: {e}")
 
         print("\n🎉 RAG Engine setup completed successfully!")
         print("🔍 Testing retrieval...")

@@ -21,12 +21,26 @@ rag_engine = RAGEngine()
 
 # Create CBT Sequential Chain with RAG Integration
 def create_cbt_sequential_chain():
-    # RAG Retrieval Function
+    # Enhanced RAG Retrieval Function
     def retrieve_context(inputs):
         message = inputs["message"]
-        # Retrieve relevant CBT knowledge and therapeutic context
-        context = rag_engine.retrieve_context(message, k=3)
-        return {"message": message, "retrieved_context": "\n\n".join(context)}
+
+        # Retrieve relevant therapy conversations and CBT knowledge
+        # Get more context pieces for better therapeutic guidance
+        context_docs = rag_engine.retrieve_context(message, k=4)
+
+        # Format the context for better readability
+        formatted_context = []
+        for i, context in enumerate(context_docs):
+            # Check if it's a conversation format
+            if "Client:" in context and "Therapist:" in context:
+                formatted_context.append(
+                    f"Example Therapy Interaction {i+1}:\n{context}"
+                )
+            else:
+                formatted_context.append(f"Therapeutic Knowledge {i+1}:\n{context}")
+
+        return {"message": message, "retrieved_context": "\n\n".join(formatted_context)}
 
     # Step 1: Initial Assessment and Validation with RAG Context
     assessment_prompt = ChatPromptTemplate.from_template(
@@ -35,16 +49,18 @@ def create_cbt_sequential_chain():
 
         Patient message: {message}
 
-        Relevant CBT knowledge and therapeutic context:
+        Relevant therapeutic examples and CBT knowledge:
         {retrieved_context}
 
-        Based on the patient's message and the provided therapeutic context, identify:
+        Based on the patient's message and the provided therapeutic examples and knowledge, identify:
         1. The emotional state expressed
         2. Any cognitive patterns or beliefs mentioned
         3. Behavioral aspects described
-        4. Which CBT techniques from the context might be most relevant
+        4. Similar therapeutic situations from the examples that might inform your approach
+        5. Which CBT techniques from the context might be most relevant
 
-        Provide key points summarizing the patient's emotional state, cognitive patterns, behaviors, and suggest preliminary CBT approaches based on the retrieved knowledge.
+        Use the therapy conversation examples to understand how similar client concerns have been addressed professionally.
+        Provide key points summarizing the patient's emotional state, cognitive patterns, behaviors, and suggest preliminary CBT approaches based on the retrieved knowledge and examples.
         """,
     )
 
@@ -55,12 +71,17 @@ def create_cbt_sequential_chain():
 
         Assessment: ###{assessment}###
 
-        Relevant CBT knowledge and context:
+        Relevant therapeutic examples and CBT knowledge:
         {retrieved_context}
 
-        Based on the assessment and the retrieved CBT knowledge, choose 2 or more relevant CBT techniques and suggest which techniques to focus on. Use the specific information from the retrieved context to inform your technique selection and application.
-        
-        Apply evidence-based CBT techniques from the retrieved knowledge, focusing on those most appropriate for the patient's current emotional state and cognitive patterns.
+        Based on the assessment and the retrieved therapeutic examples and CBT knowledge:
+        1. Identify 2-3 most relevant CBT techniques for this specific case
+        2. Reference similar cases from the therapy conversation examples to inform your approach
+        3. Explain how these techniques should be applied to the patient's specific situation
+        4. Consider the therapeutic communication style demonstrated in the examples
+
+        Use the professional therapy conversation examples as models for effective therapeutic communication and intervention strategies.
+        Choose techniques that have been demonstrated to work well for similar client presentations in the retrieved examples.
         """,
     )
 
@@ -71,21 +92,25 @@ def create_cbt_sequential_chain():
 
         CBT Techniques suggested based on assessment: {techniques_application}
 
-        Relevant therapeutic context and knowledge:
+        Relevant therapeutic examples and knowledge:
         {retrieved_context}
 
-        Provide a final therapeutic response which always follows these guidelines along with the above steps:
+        Create a final therapeutic response following these guidelines:
+        - Model your communication style on the professional therapy examples provided
         - Always respond as a therapist, never break character
-        - Always maintain a professional, conversational therapeutic tone
+        - Maintain a professional, conversational therapeutic tone similar to the examples
         - Never provide medical advice or diagnoses
         - If crisis/self-harm is mentioned, acknowledge seriously and suggest professional help
-        - Your final response should be natural and conversational, as if spoken directly to a patient as client
+        - Your response should be natural and conversational, as if spoken directly to a patient
         - Do not include step-by-step breakdown in your final response
-        - Provides specific, actionable next steps based on the retrieved knowledge
+        - Provide specific, actionable next steps informed by the retrieved therapeutic examples
         - Be very kind, supportive, and empathetic in your final response
-        - Integrate insights from the retrieved context naturally into your response
-        - Do not directly use the CBT technique names in your final response, instead integrate them naturally into the conversation
-        - Always end with an open-ended question to encourage further discussion
+        - Integrate insights from the therapy conversation examples naturally
+        - Use the communication patterns demonstrated in the retrieved examples as a guide
+        - Do not directly name CBT techniques, instead integrate them naturally into the conversation
+        - Always end with an open-ended question to encourage further discussion, similar to the examples
+
+        Draw inspiration from the professional therapeutic responses in the retrieved examples to create an authentic, helpful response.
         """,
     )
 
