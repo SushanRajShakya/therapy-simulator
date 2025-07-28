@@ -24,6 +24,7 @@ def create_cbt_sequential_chain():
     # Enhanced RAG Retrieval Function
     def retrieve_context(inputs):
         message = inputs["message"]
+        conversation_context = inputs.get("conversation_context", "")
 
         # Retrieve relevant therapy conversations and CBT knowledge
         # Get more context pieces for better therapeutic guidance
@@ -40,28 +41,36 @@ def create_cbt_sequential_chain():
             else:
                 formatted_context.append(f"Therapeutic Knowledge {i+1}:\n{context}")
 
-        return {"message": message, "retrieved_context": "\n\n".join(formatted_context)}
+        return {
+            "message": message,
+            "conversation_context": conversation_context,
+            "retrieved_context": "\n\n".join(formatted_context),
+        }
 
     # Step 1: Initial Assessment and Validation with RAG Context
     assessment_prompt = ChatPromptTemplate.from_template(
         """
-        You are a professional CBT therapist conducting an initial assessment. Your task is to analyze the patient's input and provide a structured assessment.
+        You are a professional CBT therapist conducting an ongoing assessment. Your task is to analyze the patient's input within the context of your ongoing therapeutic relationship.
 
-        Patient message: {message}
+        Current patient message: {message}
+
+        Conversation context (summary and recent history):
+        {conversation_context}
 
         Relevant therapeutic examples and CBT knowledge:
         {retrieved_context}
 
-        Based on the patient's message and the retrieved therapeutic knowledge, provide a comprehensive assessment covering:
+        Based on the patient's current message, conversation history, and the retrieved therapeutic knowledge, provide a comprehensive assessment covering:
 
-        1. EMOTIONAL STATE: What emotions are being expressed (anxiety, depression, anger, etc.)?
-        2. COGNITIVE PATTERNS: What thought patterns, beliefs, or cognitive distortions are evident?
-        3. BEHAVIORAL ASPECTS: What behaviors or avoidance patterns are described?
-        4. TRIGGERS & CONTEXT: What situations or events seem to trigger these responses?
-        5. SEVERITY & IMPACT: How significantly is this affecting their daily functioning?
+        1. EMOTIONAL STATE: What emotions are being expressed in this message and how do they relate to previous sessions?
+        2. COGNITIVE PATTERNS: What thought patterns, beliefs, or cognitive distortions are evident? Any patterns from previous conversations?
+        3. BEHAVIORAL ASPECTS: What behaviors or avoidance patterns are described? Any changes from earlier discussions?
+        4. TRIGGERS & CONTEXT: What situations or events seem to trigger these responses? Connection to previous sessions?
+        5. THERAPEUTIC PROGRESS: How does this message show progress or challenges compared to earlier conversations?
+        6. SEVERITY & IMPACT: How significantly is this affecting their daily functioning?
 
         Reference similar cases from the therapeutic examples when relevant. Keep your assessment clinical but empathetic.
-        Focus on identifying patterns that align with CBT principles and the knowledge retrieved from the context.
+        Consider the ongoing therapeutic relationship and build upon previous insights when available.
         
         Format your response as a structured assessment that will inform CBT technique selection.
         """,
@@ -148,6 +157,7 @@ def create_cbt_sequential_chain():
         assessment_result = (assessment_prompt | llm_model).invoke(inputs)
         return {
             "message": inputs["message"],
+            "conversation_context": inputs["conversation_context"],
             "retrieved_context": inputs["retrieved_context"],
             "assessment": assessment_result.content,
         }
@@ -157,6 +167,7 @@ def create_cbt_sequential_chain():
         technique_result = (technique_prompt | llm_model).invoke(inputs)
         return {
             "message": inputs["message"],
+            "conversation_context": inputs["conversation_context"],
             "retrieved_context": inputs["retrieved_context"],
             "assessment": inputs["assessment"],
             "techniques_application": technique_result.content,
