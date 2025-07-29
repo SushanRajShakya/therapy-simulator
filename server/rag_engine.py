@@ -225,39 +225,18 @@ class RAGEngine:
             search_type="similarity", search_kwargs={"k": k}
         )
 
-    def retrieve_context(self, query: str, k: int = 4) -> List[str]:
-        """Retrieve relevant context for a query"""
-        retriever = self.get_retriever(k=k)
-        docs = retriever.invoke(query)
-        return [doc.page_content for doc in docs]
-
     def retrieve_therapist_responses(self, query: str, k: int = 4) -> List[str]:
         """Retrieve therapist responses specifically for response generation"""
         retriever = self.get_retriever(k=k)
         docs = retriever.invoke(query)
 
         therapist_responses = []
+
         for doc in docs:
-            content = doc.page_content
-            # Extract therapist responses from conversation format
-            if "Therapist:" in content:
-                lines = content.split("\n")
-                for line in lines:
-                    if line.startswith("Therapist:"):
-                        response = line.replace("Therapist:", "").strip()
-                        if response:  # Only add non-empty responses
-                            therapist_responses.append(response)
-            elif "Therapeutic response:" in content:
-                response = content.replace("Therapeutic response:", "").strip()
-                if response:
-                    therapist_responses.append(response)
-            elif doc.metadata.get("type") == "therapeutic_response":
-                # Direct therapeutic response from metadata
-                response = doc.metadata.get("content", "").strip()
-                if response:
-                    therapist_responses.append(response)
-            else:
-                # Include other therapeutic knowledge as-is
-                therapist_responses.append(content)
+
+            content = doc.metadata["therapist_response"]
+
+            # Include other therapeutic knowledge as-is
+            therapist_responses.append(content)
 
         return therapist_responses[:k]  # Return up to k responses
