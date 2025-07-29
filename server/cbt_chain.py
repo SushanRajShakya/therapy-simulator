@@ -55,7 +55,7 @@ def create_cbt_sequential_chain():
         Conversation context (summary and recent history):
         {conversation_context}
 
-        Based on the patient's current message and conversation history, provide a comprehensive assessment covering:
+        Based on the patient's current message and conversation history based on the following:
 
         1. CONVERSATION STATE: Determine if this is a first interaction or continuation of an ongoing therapeutic relationship
         2. EMOTIONAL STATE: What emotions are being expressed in this message and how do they relate to previous sessions?
@@ -69,11 +69,8 @@ def create_cbt_sequential_chain():
         - Is this the patient's first message in the session?
         - Are they continuing a previous topic or introducing something new?
         - What therapeutic rapport has already been established?
-
-        Keep your assessment clinical but empathetic.
-        Consider the ongoing therapeutic relationship and build upon previous insights when available.
         
-        Format your response as a structured assessment that will inform CBT technique selection and conversation continuity.
+        Summarize the assessment not exceeding 300 words.
         """,
     )
 
@@ -95,9 +92,7 @@ def create_cbt_sequential_chain():
 
         3. APPLICATION STRATEGY: Detail how each technique should be adapted to this patient's specific situation
 
-        4. THERAPEUTIC APPROACH: Consider the most effective communication style and intervention methods for this client
-
-        Provide a clear, structured plan that will guide the final therapeutic response.
+        Summarize the technique application recommendations in few paragraphs not exceeding 300 words.
         """,
     )
 
@@ -115,7 +110,7 @@ def create_cbt_sequential_chain():
         Conversation context (summary and recent history):
         {conversation_context}
 
-        Example therapeutic responses from experienced therapists:
+        Take references from the following example therapeutic responses from experienced therapists:
         {retrieved_responses}
 
         Create a rich, contextual therapeutic response that:
