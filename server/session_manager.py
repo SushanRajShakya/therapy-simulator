@@ -84,9 +84,10 @@ class SessionManager:
             
             SESSION_END: Patient wants to end the session (e.g., "Have a good day doc", "See you soon", "I think I feel ok now", "Ready to end", "That's all for today", "I should go", "Thanks for today")
             
-            THERAPEUTIC: Meaningful emotional/psychological content that requires full CBT analysis (e.g., sharing feelings, problems, thoughts, experiences, concerns, asking for help with specific issues)
+            THERAPEUTIC: Meaningful emotional/psychological content that requires full CBT analysis (e.g., sharing feelings, problems, thoughts, experiences, concerns, sucidal thoughts, etc)
 
             SMALL_TALK: Casual conversation not requiring therapeutic intervention (e.g., comments about weather, general life updates without emotional content)
+            Examples of SMALL_TALK: 'I am doing great, How are you doing?', 'Any plans for the weekend?' etc
 
             Respond with ONLY the category name: GREETING, PROCEDURAL, SESSION_END, THERAPEUTIC, or SMALL_TALK
             """
@@ -133,7 +134,7 @@ class SessionManager:
             Provide a brief, warm greeting response that:
             - Acknowledges their greeting warmly
             - Maintains professional therapeutic boundaries
-            - Gently transitions toward therapeutic conversation
+            - Respond with small talk initiations
             - Is contextually appropriate (don't re-introduce yourself if already met)
             
             Keep it brief and natural (1-2 sentences).
